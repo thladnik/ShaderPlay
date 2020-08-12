@@ -29,10 +29,11 @@ def on_draw(dt):
     surface.draw(gl.GL_TRIANGLES, indices=I)
 
     if False:
-        for depth in np.arange(0, 2.0, 0.05):
+        for depth in np.arange(0, 5.0, 0.1):
             draw_ground_for_depth(depth)
     else:
-        draw_ground_for_depth(0.45)
+        #draw_ground_for_depth(0.45)
+        draw_ground_for_depth(3.0)
     #program.draw(gl.GL_LINES, indices=I)
     #gl.glPointSize(10)
     #gl.glEnable(gl.GL_POINT_SMOOTH)
