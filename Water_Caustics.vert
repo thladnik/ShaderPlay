@@ -6,6 +6,7 @@
 //uniform mat4 modelViewMatrix;
 //uniform mat4 projectionMatrix;
 uniform float uTime;
+uniform float uZDepth;
 
 attribute vec3 position;
 attribute vec3 normal;
@@ -21,7 +22,7 @@ const float refracIdxAir = 1.000277;
 const float refracIdxWater = 1.333;
 
 float xPartZ(in float x) {
-    float z = 0.5 * ( sin(4.0 * x * 3.14 + uTime) + 1.0)/2.0;
+    float z = 0.5 * ( sin(8.0 * x * 3.14 + uTime) + 1.0)/2.0;
     return(z);
 }
 
@@ -42,7 +43,7 @@ void main() {
 
     float xStep = 0.001;
     float yStep = 0.001;
-    float zAmp = 0.2;
+    float zAmp = 0.0001;
 
     vSurface = vec3(vPosition.xy, zAmp * (xPartZ(vPosition.x) + yPartZ(vPosition.y)));
     vec3 dX = vec3(xStep, 0.0, xPartZ(vPosition.x) - xPartZ(vPosition.x + xStep));
@@ -53,10 +54,12 @@ void main() {
     vec3 refracDir = refract(vIn, nSurface, refracIdxAir/refracIdxWater);
 
     // Calculate intersection of ray and ground plane
-    float d = 0.0; // distance of plane
-    float t = -(dot(vSurface, vNormal) + d) / (dot(refracDir, vNormal)); // length of refracted vector to plane
+    //float d = 1.0; // distance of plane
+    //float d = -mod(uTime/10, 10);
+    float t = -(dot(vSurface, vNormal) + uZDepth) / (dot(refracDir, vNormal)); // length of refracted vector to plane
     vPositionRefrac = vSurface + t * refracDir;
 
+    vec3 groundPlane = vec3(vPosition.xy, uZDepth/2);
     vAngle = dot(normalize(refracDir), normalize(vNormal));
 
 

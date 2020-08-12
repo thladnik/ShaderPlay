@@ -16,8 +16,11 @@ with open('Water_caustics.frag', 'r') as f:
 @window.event
 def on_draw(dt):
     window.clear(color=(0,0,0,1))
-    program['uTime'] = 5 * (time.time() - t_start)
-    program.draw(gl.GL_TRIANGLES, indices=I)
+    program['uTime'] = 0.0#5 * (time.time() - t_start)
+
+    for depth in np.arange(0, 10.0, 0.05):
+        program['uZDepth'] = depth
+        program.draw(gl.GL_TRIANGLES, indices=I)
     #program.draw(gl.GL_LINES, indices=I)
     #gl.glPointSize(10)
     #gl.glEnable(gl.GL_POINT_SMOOTH)
@@ -26,7 +29,7 @@ def on_draw(dt):
 
 
 ### Create vertex mesh
-z_depth = 5.0
+#z_depth = 1.0
 lim = 1  # units?
 step = 0.01
 x = np.arange(-lim, lim, step)
@@ -49,7 +52,7 @@ if True:
     I = indices.view(gloo.IndexBuffer)
 
 program = gloo.Program(vertex=vertex, fragment=fragment, count=count)
-program['position'] = np.array([X, Y, -z_depth * np.ones(count)]).T
+program['position'] = np.array([X, Y, np.zeros(count)]).T
 program['normal'] = np.array(count * [[0.0, 0.0, 1.0]])
 
 xtex,ytex = np.mgrid[-2:2:.1, -2:2:.1]
@@ -61,8 +64,10 @@ z_rep = np.vstack(10 * [z_rep])
 
 
 program['texture'] = z_rep
-program['transform'] = Trackball(Position('vPositionRefrac'), znear=0.01, zfar=20000)
+program['transform'] = Trackball(Position('vPositionRefrac'), znear=0.01, zfar=20000, theta=0, phi=0)
 #program['transform'] = Trackball(Position('vSurface'), znear=0.01, zfar=20000)
+#program['transform'] = Trackball(Position('vPosition'), znear=0.01, zfar=20000)
+#program['transform'] = Trackball(Position('groundPlane'), znear=0.01, zfar=20000, theta=0)
 window.attach(program['transform'])
 #program['uProjection'] = glm.ortho(-1.0, 1.0, -1.0, 1.0, 0.0, 4.0)
 
