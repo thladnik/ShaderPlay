@@ -8,7 +8,6 @@ varying vec3 vPosition;
 varying vec3 vPositionRefrac;
 varying vec3 vSurface;
 varying vec3 nSurface;
-varying float vAngle;
 
 void main() {
 
@@ -20,7 +19,9 @@ void main() {
     //gl_FragColor = vec4(vec3(vAngle), 1.0);
     float oldArea = length(dFdx(vPosition)) * length(dFdy(vPosition));
     float newArea = length(dFdx(vPositionRefrac)) * length(dFdy(vPositionRefrac));
-    gl_FragColor = vec4(oldArea / newArea * 0.4);
+    float ratio = oldArea / newArea * 2.0;
+
+    gl_FragColor = vec4(ratio);
     //gl_FragColor = texture2D(texture, vPositionRefrac.xy);
 
     //gl_FragColor = vec4( vec3( 0.5 ), 1.0 );

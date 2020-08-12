@@ -152,10 +152,11 @@ void main() {
     //vec3 dY = vec3(0.0, yStep, yPartZ(vPosition.y) - yPartZ(vPosition.y + yStep));
 
     // SIMPLEX NOISE
+    float scale = 1/2.0;
     float t_incr = uTime/5.0;
-    vSurface = vec3(vPosition.xy, simplex3d(vec3(vPosition.xy, t_incr)) / 2.0);
-    vec3 dX = vec3(xStep, 0.0, simplex3d(vec3(vPosition.xy, t_incr)) - simplex3d(vec3(vPosition.x + xStep, vPosition.y, t_incr)));
-    vec3 dY = vec3(yStep, 0.0, simplex3d(vec3(vPosition.xy, t_incr)) - simplex3d(vec3(vPosition.x, vPosition.y + yStep, t_incr)));
+    vSurface = vec3(vPosition.xy, scale * simplex3d(vec3(vPosition.xy, t_incr)));
+    vec3 dX = vec3(xStep, 0.0, scale * simplex3d(vec3(vPosition.xy, t_incr)) - scale * simplex3d(vec3(vPosition.x + xStep, vPosition.y, t_incr)));
+    vec3 dY = vec3(0.0, yStep, scale * simplex3d(vec3(vPosition.xy, t_incr)) - scale * simplex3d(vec3(vPosition.x, vPosition.y + yStep, t_incr)));
 
     // Calculate surface normals
     nSurface = -vec3(normalize(cross(dX, dY)));
@@ -169,9 +170,7 @@ void main() {
     float t = -(dot(vSurface, vNormal) + uZDepth) / (dot(refracDir, vNormal)); // length of refracted vector to plane
     vPositionRefrac = vSurface + t * refracDir;
 
-    vec3 groundPlane = vec3(vPosition.xy, uZDepth/2);
-    vAngle = dot(normalize(refracDir), normalize(vNormal));
-
+    vec3 groundPlane = vec3(vPosition.xy, -uZDepth);
 
     //gl_Position = projectionMatrix * modelViewMatrix * vec4( vPosition.xyz, 1.0 );
     gl_Position = <transform>;

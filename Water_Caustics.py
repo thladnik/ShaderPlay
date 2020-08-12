@@ -26,14 +26,16 @@ def on_draw(dt):
     surface['uTime'] = t
     ground['uTime'] = t
 
-    surface.draw(gl.GL_TRIANGLES, indices=I)
+    #surface.draw(gl.GL_TRIANGLES, indices=I)
+    surface.draw(gl.GL_LINES, indices=I)
 
     if False:
         for depth in np.arange(0, 5.0, 0.1):
             draw_ground_for_depth(depth)
     else:
         #draw_ground_for_depth(0.45)
-        draw_ground_for_depth(3.0)
+        #draw_ground_for_depth(3.0)
+        draw_ground_for_depth(1 + t/10 % 5)
     #program.draw(gl.GL_LINES, indices=I)
     #gl.glPointSize(10)
     #gl.glEnable(gl.GL_POINT_SMOOTH)
@@ -76,10 +78,10 @@ ground['position'] = np.array([X, Y, np.zeros(count)]).T
 ground['normal'] = np.array(count * [[0.0, 0.0, 1.0]])
 
 
-ground['transform'] = Trackball(Position('vPositionRefrac'), znear=0.01, zfar=20000, theta=0, phi=0)
+#ground['transform'] = Trackball(Position('vPositionRefrac'), znear=0.01, zfar=20000, theta=0, phi=0)
 #program['transform'] = Trackball(Position('vSurface'), znear=0.01, zfar=20000)
 #program['transform'] = Trackball(Position('vPosition'), znear=0.01, zfar=20000)
-#program['transform'] = Trackball(Position('groundPlane'), znear=0.01, zfar=20000, theta=0)
+ground['transform'] = Trackball(Position('groundPlane'), znear=0.01, zfar=20000, theta=0)
 
 window.attach(ground['transform'])
 window.attach(surface['transform'])
