@@ -45,8 +45,8 @@ def on_draw(dt):
 
 ### Create vertex mesh
 #z_depth = 1.0
-lim = 3  # units?
-step = 0.01
+lim = 20  # units?
+step = 0.05
 x = np.arange(-lim, lim, step)
 y = np.arange(-lim, lim, step)
 count = int(x.shape[0] *y.shape[0])
@@ -77,11 +77,8 @@ ground = gloo.Program(vertex=vert_caustic, fragment=frag_caustic, count=count)
 ground['position'] = np.array([X, Y, np.zeros(count)]).T
 ground['normal'] = np.array(count * [[0.0, 0.0, 1.0]])
 
-
-#ground['transform'] = Trackball(Position('vPositionRefrac'), znear=0.01, zfar=20000, theta=0, phi=0)
-#program['transform'] = Trackball(Position('vSurface'), znear=0.01, zfar=20000)
-#program['transform'] = Trackball(Position('vPosition'), znear=0.01, zfar=20000)
-ground['transform'] = Trackball(Position('groundPlane'), znear=0.01, zfar=20000, theta=0)
+#ground['transform'] = Trackball(Position('groundPlane'), znear=0.01, zfar=20000, theta=0)
+ground['transform'] = Trackball(Position('unitGround'), znear=0.01, zfar=20000, theta=0)
 
 window.attach(ground['transform'])
 window.attach(surface['transform'])

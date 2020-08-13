@@ -171,6 +171,7 @@ void main() {
     vPositionRefrac = vSurface + t * refracDir;
 
     vec3 groundPlane = vec3(vPosition.xy, -uZDepth);
+    vec3 unitGround = normalize(groundPlane);
 
     //gl_Position = projectionMatrix * modelViewMatrix * vec4( vPosition.xyz, 1.0 );
     gl_Position = <transform>;
