@@ -19,9 +19,11 @@ void main() {
     //gl_FragColor = vec4(vec3(vAngle), 1.0);
     float oldArea = length(dFdx(vPosition)) * length(dFdy(vPosition));
     float newArea = length(dFdx(vPositionRefrac)) * length(dFdy(vPositionRefrac));
-    float ratio = oldArea / newArea * 2.0;
+    float ratio = oldArea / newArea * 4.0;
 
-    gl_FragColor = vec4(ratio);
+    float dist = length(vPositionRefrac);
+
+    gl_FragColor = vec4(ratio/dist);
     //gl_FragColor = texture2D(texture, vPositionRefrac.xy);
 
     //gl_FragColor = vec4( vec3( 0.5 ), 1.0 );

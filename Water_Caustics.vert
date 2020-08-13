@@ -3,8 +3,9 @@
 //precision highp float;
 //precision highp int;
 
-//uniform mat4 modelViewMatrix;
-//uniform mat4 projectionMatrix;
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
 uniform float uTime;
 uniform float uZDepth;
 
@@ -119,7 +120,7 @@ float simplex3d(vec3 p) {
 vec3 gerstner(vec3 i) {  // input vector (x,y,t)
     float g = 9.81; // gravitational constant
     float L = 2.0; // period length
-    float A = 0.1; // Amplitude
+    float A = 0.05; // Amplitude
     float q = 0.4; // steepness multiplicator <= 1.0
 
     vec2 D = normalize(vec2(1.0, 0.0)); // Direction of wave
@@ -129,11 +130,9 @@ vec3 gerstner(vec3 i) {  // input vector (x,y,t)
 
     vec3 r;
 
-    float phase_step = 0.0;
-
-    float x = i.x + Q * A * D.x * cos(dot(w * D.xy, i.xy) + phase_step);
-    float y = i.y + Q * A * D.y * cos(dot(w * D.xy, i.xy) + phase_step);
-    float z = A * sin(w * dot(D.xy, i.xy) + phase_step);
+    float x = i.x + Q * A * D.x * cos(dot(w * D.xy, i.xy) + i.z);
+    float y = i.y + Q * A * D.y * cos(dot(w * D.xy, i.xy) + i.z);
+    float z = A * sin(w * dot(D.xy, i.xy) + i.z);
 
     r = vec3(x,y,z);
 
@@ -158,6 +157,8 @@ float yPartZSine(in float y) {
     return(z);
 }
 
+
+
 void main() {
 
     vec3 vIn = normalize(vec3(0.0, 0.0, 1.0));
@@ -171,7 +172,6 @@ void main() {
     float yStep = 0.001;
 
     // CHOOSE SURFACE PATTERN:
-    float t_incr = uTime/5.0;
 
     // SINE WAVES
     //vSurface = vec3(vPosition.xy, xPartZ(vPosition.x) + yPartZ(vPosition.y));
@@ -179,14 +179,18 @@ void main() {
     //vec3 dY = vec3(0.0, yStep, yPartZ(vPosition.y) - yPartZ(vPosition.y + yStep));
 
     // SIMPLEX NOISE
-    //float scale = 1/2.0;
-    //vSurface = vec3(vPosition.xy, scale * simplex3d(vec3(vPosition.xy, t_incr)));
-    //vec3 dX = vec3(xStep, 0.0, scale * simplex3d(vec3(vPosition.xy, t_incr)) - scale * simplex3d(vec3(vPosition.x + xStep, vPosition.y, t_incr)));
-    //vec3 dY = vec3(0.0, yStep, scale * simplex3d(vec3(vPosition.xy, t_incr)) - scale * simplex3d(vec3(vPosition.x, vPosition.y + yStep, t_incr)));
+    float t_incr = uTime/5.0;
+    vec2 xy = vPosition.xy;
+    float scale = 1/5.0;
+    vSurface = vec3(xy, scale * simplex3d(vec3(xy, t_incr)));
+    vec3 dX = vec3(xStep, 0.0, scale * simplex3d(vec3(xy, t_incr)) - scale * simplex3d(vec3(xy.x + xStep, xy.y, t_incr)));
+    vec3 dY = vec3(0.0, yStep, scale * simplex3d(vec3(xy, t_incr)) - scale * simplex3d(vec3(xy.x, xy.y + yStep, t_incr)));
 
-    vSurface = gerstner(vec3(vPosition.xy, t_incr));
-    vec3 dX = gerstner(vec3(vPosition.xy, t_incr)) - gerstner(vec3(vPosition.x + xStep, vPosition.y, t_incr));
-    vec3 dY = gerstner(vec3(vPosition.xy, t_incr)) - gerstner(vec3(vPosition.x, vPosition.y + yStep, t_incr));
+    // GERSTNER WAVES
+    //float t_incr = uTime;
+    //vSurface = gerstner(vec3(vPosition.xy, t_incr));
+    //vec3 dX = gerstner(vec3(vPosition.xy, t_incr)) - gerstner(vec3(vPosition.x + xStep, vPosition.y, t_incr));
+    //vec3 dY = gerstner(vec3(vPosition.xy, t_incr)) - gerstner(vec3(vPosition.x, vPosition.y + yStep, t_incr));
 
     // Calculate surface normals
     nSurface = -vec3(normalize(cross(dX, dY)));
@@ -202,12 +206,11 @@ void main() {
 
     vec3 groundPlane = vec3(vPosition.xy, -uZDepth);
     vec3 unitGround = normalize(groundPlane) * 4.0;
-    unitGround = vec3(unitGround.xy, unitGround.z-3.0);
+    //unitGround = vec3(unitGround.xy, unitGround.z-3.0);
 
-    // For display
-    vSurface = vec3(vSurface.xy, vSurface.z + 3.0);
+    vSurface = vec3(vSurface.xy, vSurface.z);
 
-    //gl_Position = projectionMatrix * modelViewMatrix * vec4( vPosition.xyz, 1.0 );
+    //gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(vSurface, 1.0);
     gl_Position = <transform>;
 
 }

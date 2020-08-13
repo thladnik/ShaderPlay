@@ -3,7 +3,10 @@ import numpy as np
 from glumpy.transforms import Trackball, Position
 import time
 from scipy.stats import multivariate_normal
+import glfw
+import keyboard
 
+app.use('glfw')
 window = app.Window(width=2000, height=1500)
 
 with open('Water_Caustics.vert', 'r') as f:
@@ -20,13 +23,48 @@ def draw_ground_for_depth(depth):
     ground.draw(gl.GL_TRIANGLES, indices=I)
 
 @window.event
+def on_init():
+    gl.glEnable(gl.GL_DEPTH_TEST)
+    gl.glEnable(gl.GL_BLEND)
+
+@window.event
+def on_key_press(symbol, modifiers):
+    deg_incr = 1.0
+    dist_incr = 0.2
+    # LEFT
+    if symbol == glfw.KEY_A:
+        surface['transform'].phi -= deg_incr
+        ground['transform'].phi -= deg_incr
+    # RIGHT
+    elif symbol == glfw.KEY_D:
+        surface['transform'].phi += deg_incr
+        ground['transform'].phi += deg_incr
+    # UP
+    elif symbol == glfw.KEY_W:
+        surface['transform'].theta -= deg_incr
+        ground['transform'].theta -= deg_incr
+    # DOWN
+    elif symbol == glfw.KEY_S:
+        surface['transform'].theta += deg_incr
+        ground['transform'].theta += deg_incr
+    # AWAY
+    elif symbol == glfw.KEY_Q:
+        surface['transform'].distance += dist_incr
+        ground['transform'].distance += dist_incr
+    # CLOSER
+    elif symbol == glfw.KEY_E:
+        surface['transform'].distance -= dist_incr
+        ground['transform'].distance -= dist_incr
+
+@window.event
 def on_draw(dt):
     window.clear(color=(0,0,0,1))
     t = 5 * (time.time() - t_start)
     surface['uTime'] = t
     ground['uTime'] = t
 
-    #surface.draw(gl.GL_TRIANGLES, indices=I)
+    gl.glEnable(gl.GL_BLEND)
+
     surface.draw(gl.GL_LINES, indices=I)
 
     if False:
@@ -35,18 +73,14 @@ def on_draw(dt):
     else:
         #draw_ground_for_depth(0.45)
         #draw_ground_for_depth(3.0)
-        draw_ground_for_depth(1 + t/10 % 5)
-    #program.draw(gl.GL_LINES, indices=I)
-    #gl.glPointSize(10)
-    #gl.glEnable(gl.GL_POINT_SMOOTH)
-    #gl.glEnable(gl.GL_BLEND)
-    #program.draw(gl.GL_POINTS)
+        draw_ground_for_depth(1 + t/10 % 10)
+
 
 
 ### Create vertex mesh
 #z_depth = 1.0
-lim = 2  # units?
-step = 0.01
+lim = 5  # units?
+step = 0.02
 x = np.arange(-lim, lim, step)
 y = np.arange(-lim, lim, step)
 count = int(x.shape[0] *y.shape[0])
@@ -70,7 +104,9 @@ surface = gloo.Program(vertex=vert_caustic, fragment=frag_surface, count=count)
 surface['position'] = np.array([X, Y, np.zeros(count)]).T
 surface['normal'] = np.array(count * [[0.0, 0.0, 1.0]])
 
-surface['transform'] = Trackball(Position('vSurface'), znear=0.01, zfar=20000, theta=0, phi=0)
+transform_params = dict(zoom=100,znear=0.01, zfar=20000, theta=0, phi=0)
+surface['transform'] = Trackball(Position('vSurface'), **transform_params)
+
 
 ### Create ground
 ground = gloo.Program(vertex=vert_caustic, fragment=frag_caustic, count=count)
@@ -78,9 +114,9 @@ ground['position'] = np.array([X, Y, np.zeros(count)]).T
 ground['normal'] = np.array(count * [[0.0, 0.0, 1.0]])
 
 # On planar ground:
-ground['transform'] = Trackball(Position('groundPlane'), znear=0.01, zfar=20000, theta=0)
+ground['transform'] = Trackball(Position('groundPlane'), **transform_params)
 # On Sphere:
-#ground['transform'] = Trackball(Position('unitGround'), znear=0.01, zfar=20000, theta=0)
+#ground['transform'] = Trackball(Position('unitGround'), **transform_params)
 
 window.attach(ground['transform'])
 window.attach(surface['transform'])
