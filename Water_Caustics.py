@@ -79,7 +79,7 @@ def on_draw(dt):
 
 ### Create vertex mesh
 #z_depth = 1.0
-lim = 5  # units?
+lim = 15  # units?
 step = 0.02
 x = np.arange(-lim, lim, step)
 y = np.arange(-lim, lim, step)
@@ -114,9 +114,9 @@ ground['position'] = np.array([X, Y, np.zeros(count)]).T
 ground['normal'] = np.array(count * [[0.0, 0.0, 1.0]])
 
 # On planar ground:
-ground['transform'] = Trackball(Position('groundPlane'), **transform_params)
+#ground['transform'] = Trackball(Position('groundPlane'), **transform_params)
 # On Sphere:
-#ground['transform'] = Trackball(Position('unitGround'), **transform_params)
+ground['transform'] = Trackball(Position('unitGround'), **transform_params)
 
 window.attach(ground['transform'])
 window.attach(surface['transform'])

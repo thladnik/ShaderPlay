@@ -158,7 +158,6 @@ float yPartZSine(in float y) {
 }
 
 
-
 void main() {
 
     vec3 vIn = normalize(vec3(0.0, 0.0, 1.0));
@@ -179,18 +178,23 @@ void main() {
     //vec3 dY = vec3(0.0, yStep, yPartZ(vPosition.y) - yPartZ(vPosition.y + yStep));
 
     // SIMPLEX NOISE
-    float t_incr = uTime/5.0;
-    vec2 xy = vPosition.xy;
-    float scale = 1/5.0;
-    vSurface = vec3(xy, scale * simplex3d(vec3(xy, t_incr)));
-    vec3 dX = vec3(xStep, 0.0, scale * simplex3d(vec3(xy, t_incr)) - scale * simplex3d(vec3(xy.x + xStep, xy.y, t_incr)));
-    vec3 dY = vec3(0.0, yStep, scale * simplex3d(vec3(xy, t_incr)) - scale * simplex3d(vec3(xy.x, xy.y + yStep, t_incr)));
+    //float t_incr = uTime/5.0;
+    //vec2 xy = vPosition.xy;
+    //float scale = 1/5.0;
+    //vSurface = vec3(xy, scale * simplex3d(vec3(xy, t_incr)));
+    //vec3 dX = vec3(xStep, 0.0, scale * simplex3d(vec3(xy, t_incr)) - scale * simplex3d(vec3(xy.x + xStep, xy.y, t_incr)));
+    //vec3 dY = vec3(0.0, yStep, scale * simplex3d(vec3(xy, t_incr)) - scale * simplex3d(vec3(xy.x, xy.y + yStep, t_incr)));
 
     // GERSTNER WAVES
-    //float t_incr = uTime;
-    //vSurface = gerstner(vec3(vPosition.xy, t_incr));
-    //vec3 dX = gerstner(vec3(vPosition.xy, t_incr)) - gerstner(vec3(vPosition.x + xStep, vPosition.y, t_incr));
-    //vec3 dY = gerstner(vec3(vPosition.xy, t_incr)) - gerstner(vec3(vPosition.x, vPosition.y + yStep, t_incr));
+    float t_incr = uTime;
+    vSurface = gerstner(vec3(vPosition.xy, t_incr));
+    vec3 dX = gerstner(vec3(vPosition.xy, t_incr)) - gerstner(vec3(vPosition.x + xStep, vPosition.y, t_incr));
+    vec3 dY = gerstner(vec3(vPosition.xy, t_incr)) - gerstner(vec3(vPosition.x, vPosition.y + yStep, t_incr));
+    // (optional) add simplex3d
+    float scale_noise = 0.1;
+    vSurface.z += scale_noise * simplex3d(vec3(vSurface.xy, t_incr));
+    dX.z += scale_noise * (simplex3d(vec3(vSurface.xy, t_incr)) - simplex3d(vec3(vSurface.xy + vec2(xStep, 0.0), t_incr)));
+    dY.z += scale_noise * (simplex3d(vec3(vSurface.xy, t_incr)) - simplex3d(vec3(vSurface.xy + vec2(0.0, yStep), t_incr)));
 
     // Calculate surface normals
     nSurface = -vec3(normalize(cross(dX, dY)));
@@ -205,8 +209,8 @@ void main() {
     vPositionRefrac = vSurface + t * refracDir;
 
     vec3 groundPlane = vec3(vPosition.xy, -uZDepth);
-    vec3 unitGround = normalize(groundPlane) * 4.0;
-    //unitGround = vec3(unitGround.xy, unitGround.z-3.0);
+    vec3 unitGround = normalize(groundPlane) * 2.0;
+    unitGround = vec3(unitGround.xy, unitGround.z-3.0);
 
     vSurface = vec3(vSurface.xy, vSurface.z);
 
