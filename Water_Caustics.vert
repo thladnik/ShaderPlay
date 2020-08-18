@@ -121,7 +121,7 @@ vec3 gerstner(vec3 i) {  // input vector (x,y,t)
     float g = 9.81; // gravitational constant
     float L = 2.0; // period length
     float A = 0.05; // Amplitude
-    float q = 0.4; // steepness multiplicator <= 1.0
+    float q = 0.5; // steepness multiplicator <= 1.0
 
     vec2 D = normalize(vec2(1.0, 0.0)); // Direction of wave
 

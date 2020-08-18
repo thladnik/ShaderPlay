@@ -55,13 +55,15 @@ def on_key_press(symbol, modifiers):
     elif symbol == glfw.KEY_E:
         surface['transform'].distance -= dist_incr
         ground['transform'].distance -= dist_incr
+    elif symbol == glfw.KEY_T:
+        surface['uTime'] = 0.0
+        ground['uTime'] = 0.0
 
 @window.event
 def on_draw(dt):
     window.clear(color=(0,0,0,1))
-    t = 5 * (time.time() - t_start)
-    surface['uTime'] = t
-    ground['uTime'] = t
+    surface['uTime'] += dt
+    ground['uTime'] += dt
 
     gl.glEnable(gl.GL_BLEND)
 
@@ -73,13 +75,13 @@ def on_draw(dt):
     else:
         #draw_ground_for_depth(0.45)
         #draw_ground_for_depth(3.0)
-        draw_ground_for_depth(1 + t/10 % 10)
+        draw_ground_for_depth(1 + ground['uTime']/10 % 5)
 
 
 
 ### Create vertex mesh
 #z_depth = 1.0
-lim = 15  # units?
+lim = 10  # units?
 step = 0.02
 x = np.arange(-lim, lim, step)
 y = np.arange(-lim, lim, step)
@@ -121,6 +123,7 @@ ground['transform'] = Trackball(Position('unitGround'), **transform_params)
 window.attach(ground['transform'])
 window.attach(surface['transform'])
 
-t_start = time.time()
+surface['uTime'] = 0.0
+ground['uTime'] = 0.0
 
 app.run()
